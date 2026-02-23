@@ -2,54 +2,42 @@
 //  ContentView.swift
 //  CameraSamsung
 //
-//  Created by Matheus José on 22/02/26.
+//  Main TabView container with Connection, Gallery, and Viewfinder tabs
 //
 
 import SwiftUI
-import SwiftData
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
-
+    @Environment(CameraConnectionManager.self) private var manager
+    @State private var selectedTab = 0
+    
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
+        TabView(selection: $selectedTab) {
+            ConnectionView()
+                .tabItem {
+                    Label("Conexão", systemImage: "wifi")
                 }
-                .onDelete(perform: deleteItems)
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
+                .tag(0)
+            
+            GalleryView()
+                .tabItem {
+                    Label("Galeria", systemImage: "photo.on.rectangle.angled")
                 }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-        } detail: {
-            Text("Select an item")
+                .tag(1)
         }
-    }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
+        .tint(.cameraAmber)
+        .onChange(of: manager.status) { _, newStatus in
+            // Auto-switch based on detected mode
+            if selectedTab == 0 {
+                if newStatus.isConnected {
+                    withAnimation { selectedTab = 1 } // Gallery tab
+                }
+            }
         }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
+        .task {
+            // Auto-connect when app opens
+            if manager.status == .disconnected {
+                await manager.connect()
             }
         }
     }
@@ -57,5 +45,6 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
+        .environment(CameraConnectionManager())
+        .preferredColorScheme(.dark)
 }

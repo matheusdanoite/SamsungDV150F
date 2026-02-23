@@ -2,7 +2,7 @@
 //  CameraSamsungApp.swift
 //  CameraSamsung
 //
-//  Created by Matheus José on 22/02/26.
+//  Samsung DV150F Wi-Fi Camera Companion App
 //
 
 import SwiftUI
@@ -10,23 +10,19 @@ import SwiftData
 
 @main
 struct CameraSamsungApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
-
+    @State private var connectionManager = CameraConnectionManager.shared
+    
+    init() {
+        // Start silent audio loop to allow the app to run in the background
+        BackgroundAudioManager.shared.startSilentPlayback()
+    }
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(connectionManager)
+                .preferredColorScheme(.dark)
         }
-        .modelContainer(sharedModelContainer)
+        .modelContainer(DatabaseManager.shared.container)
     }
 }
