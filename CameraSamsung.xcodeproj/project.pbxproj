@@ -6,6 +6,9 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		9374BC492F4BD6F400592181 /* CameraSamsung.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CameraSamsung.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -42,11 +45,26 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		48C561AB316363F275BF3738 /* Networking */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Networking;
+			sourceTree = "<group>";
+		};
+		56AF2CA81647862D03F33932 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Views;
+			sourceTree = "<group>";
+		};
 		9374BC402F4BD6F400592181 = {
 			isa = PBXGroup;
 			children = (
 				9374BC4B2F4BD6F400592181 /* CameraSamsung */,
 				9374BC4A2F4BD6F400592181 /* Products */,
+				ADAD2A5D71BA7BF40F77EE7B /* CameraSamsung */,
 			);
 			sourceTree = "<group>";
 		};
@@ -56,6 +74,15 @@
 				9374BC492F4BD6F400592181 /* CameraSamsung.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		ADAD2A5D71BA7BF40F77EE7B /* CameraSamsung */ = {
+			isa = PBXGroup;
+			children = (
+				48C561AB316363F275BF3738 /* Networking */,
+				56AF2CA81647862D03F33932 /* Views */,
+			);
+			name = CameraSamsung;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -77,8 +104,6 @@
 				9374BC4B2F4BD6F400592181 /* CameraSamsung */,
 			);
 			name = CameraSamsung;
-			packageProductDependencies = (
-			);
 			productName = CameraSamsung;
 			productReference = 9374BC492F4BD6F400592181 /* CameraSamsung.app */;
 			productType = "com.apple.product-type.application";
@@ -132,6 +157,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A7C7826141EEF0B345354603 /* WiFiConnector.swift in Sources */,
+				BB3AED53D430D325C4560BE0 /* SettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -264,7 +291,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = CameraSamsung/CameraSamsung.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -304,7 +330,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = CameraSamsung/CameraSamsung.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
