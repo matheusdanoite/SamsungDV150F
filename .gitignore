@@ -1,0 +1,28 @@
+# OS X
+.DS_Store
+
+# Xcode
+build/
+DerivedData/
+*.xcodeproj/project.xcworkspace
+*.xcodeproj/xcuserdata
+*.xcuserdatad
+*.xccheckout
+*.xcscmblueprint
+*.xcuserstate
+Contents.json
+!Contents.json
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# Python (just in case)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Temporary files
+*.swp
+*.lock
+*.temp
