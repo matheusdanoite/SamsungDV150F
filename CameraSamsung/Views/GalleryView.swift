@@ -21,25 +21,24 @@ struct GalleryView: View {
     private var displayRecords: [CameraMediaRecord] {
         var records: [CameraMediaRecord] = syncedRecords
         
+        // Gather exact filenames already in DB
         let syncedFilenames = Set(syncedRecords.map { $0.filename })
         
         // Add transient files that haven't been synced yet
         for file in manager.cameraFiles {
+            // Skip if we already have this exact filename synced
             if !syncedFilenames.contains(file.filename) {
                 let transientRecord = CameraMediaRecord(
                     filename: file.filename,
                     source: .mobileLink,
                     status: .available,
                     captureDate: file.parsedDate ?? Date(),
-                    thumbnailLocalPath: nil, // Transient records don't have disk thumbnails yet
+                    thumbnailLocalPath: nil,
                     fileSize: Int64(file.fileSize),
                     isVideo: file.isVideo,
                     contentURL: file.contentURL,
                     thumbnailURL: file.thumbnailURL
                 )
-                
-                // For transient records, we can't easily use thumbnailImage computed prop
-                // because they aren't on disk. We'll handle this in the view.
                 records.append(transientRecord)
             }
         }
@@ -431,31 +430,41 @@ struct GalleryView: View {
         Group {
             let sync = SyncManager.shared
             if sync.isSyncing {
-                HStack(spacing: 10) {
-                    ProgressView()
-                        .tint(.cameraAmber)
-                        .scaleEffect(0.8)
-                    
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Sincronizando \(sync.syncedCount)/\(sync.totalToSync)...")
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(.cameraTextPrimary)
+                VStack(spacing: 12) {
+                    HStack(spacing: 10) {
+                        Image(systemName: "arrow.triangle.2.circlepath")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(.cameraAmber)
+                            .rotationEffect(.degrees(sync.isSyncing ? 360 : 0))
+                            .animation(.linear(duration: 2).repeatForever(autoreverses: false), value: sync.isSyncing)
                         
-                        if !sync.currentFileName.isEmpty {
-                            Text(sync.currentFileName)
-                                .font(.system(size: 11, design: .monospaced))
-                                .foregroundColor(.cameraTextTertiary)
-                                .lineLimit(1)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Importando Fotos")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundColor(.cameraTextPrimary)
+                            
+                            if !sync.currentFileName.isEmpty {
+                                Text(sync.currentFileName)
+                                    .font(.system(size: 11, design: .monospaced))
+                                    .foregroundColor(.cameraTextTertiary)
+                                    .lineLimit(1)
+                            }
                         }
+                        
+                        Spacer()
+                        
+                        Text("\(sync.syncedCount) / \(sync.totalToSync)")
+                            .font(.system(size: 13, weight: .bold, design: .monospaced))
+                            .foregroundColor(.cameraAmber)
                     }
                     
-                    Spacer()
-                    
-                    Text("\(Int(Double(sync.syncedCount) / max(Double(sync.totalToSync), 1) * 100))%")
-                        .font(.system(size: 14, weight: .bold, design: .monospaced))
-                        .foregroundColor(.cameraAmber)
+                    ProgressView(value: Double(sync.syncedCount), total: Double(max(sync.totalToSync, 1)))
+                        .tint(.cameraAmber)
+                        .background(Color.white.opacity(0.1))
+                        .scaleEffect(x: 1, y: 1.5, anchor: .center)
+                        .clipShape(Capsule())
                 }
-                .padding(12)
+                .padding(14)
                 .glassCard()
                 .padding(.horizontal, 16)
             } else if !sync.lastSyncMessage.isEmpty {

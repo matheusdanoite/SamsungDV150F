@@ -248,6 +248,11 @@ final class CameraConnectionManager {
                 try await client.connect()
                 self.dlnaClient = client
                 self.status = .connected
+                
+                // Automatically load files after connection
+                addLog(.info, "Conexão estabelecida, buscando arquivos automaticamente...")
+                await self.loadFiles()
+                
                 addLog(.success, "Conectado à câmera Samsung via DLNA!")
                 if let info = client.cameraInfo {
                     addLog(.info, "Câmera: \(info.friendlyName)")
@@ -349,8 +354,13 @@ final class CameraConnectionManager {
                 )
             }
             
+            // Automatically sync new files in MobileLink mode
+            if !cameraFiles.isEmpty {
+                addLog(.info, "Iniciando importação automática de novos arquivos...")
+                await SyncManager.shared.syncNewFiles(cameraFiles, using: client)
+            }
             
-            // Auto-sync is disabled to allow on-demand downloads
+            // Auto-sync is disabled to allow on-demand downloads (user manual override)
         } catch {
             addLog(.error, "Erro ao buscar arquivos DLNA: \(error.localizedDescription)")
         }

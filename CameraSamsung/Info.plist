@@ -6,5 +6,9 @@
 	<array>
 		<string>audio</string>
 	</array>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>O app precisa acessar sua galeria para salvar e organizar as fotos da câmera no álbum Cybershota.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>O app precisa de permissão para salvar fotos e vídeos da sua câmera na galeria.</string>
 </dict>
 </plist>

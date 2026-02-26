@@ -238,23 +238,59 @@ final class SyncManager {
     // MARK: - Photo Library
     
     private func saveToPhotoLibrary(data: Data, filename: String, isVideo: Bool) async throws {
+        let album = await findOrCreateAlbum(named: "Cybershota")
+        
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             PHPhotoLibrary.shared().performChanges {
-                let request = PHAssetCreationRequest.forAsset()
+                let assetRequest = PHAssetCreationRequest.forAsset()
                 if isVideo {
-                    // Write to temp file for video
                     let tempURL = FileManager.default.temporaryDirectory
                         .appendingPathComponent(filename)
                     try? data.write(to: tempURL)
-                    request.addResource(with: .video, fileURL: tempURL, options: nil)
+                    assetRequest.addResource(with: .video, fileURL: tempURL, options: nil)
                 } else {
-                    request.addResource(with: .photo, data: data, options: nil)
+                    assetRequest.addResource(with: .photo, data: data, options: nil)
                 }
+                
+                // Add to album if found/created
+                if let album = album {
+                    let albumRequest = PHAssetCollectionChangeRequest(for: album)
+                    let placeholder = assetRequest.placeholderForCreatedAsset
+                    albumRequest?.addAssets([placeholder as Any] as NSArray)
+                }
+                
             } completionHandler: { success, error in
                 if success {
                     continuation.resume()
                 } else {
-                    continuation.resume(throwing: error ?? NSError(domain: "SyncManager", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to save photo"]))
+                    continuation.resume(throwing: error ?? NSError(domain: "SyncManager", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to save to photo library"]))
+                }
+            }
+        }
+    }
+    
+    /// Finds or creates a photo album with the given name
+    private func findOrCreateAlbum(named name: String) async -> PHAssetCollection? {
+        let fetchOptions = PHFetchOptions()
+        fetchOptions.predicate = NSPredicate(format: "title = %@", name)
+        let collection = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: fetchOptions)
+        
+        if let firstObject = collection.firstObject {
+            return firstObject
+        }
+        
+        // Create the album if it doesn't exist
+        return await withCheckedContinuation { continuation in
+            var albumPlaceholder: PHObjectPlaceholder?
+            PHPhotoLibrary.shared().performChanges {
+                let createAlbumRequest = PHAssetCollectionChangeRequest.creationRequestForAssetCollection(withTitle: name)
+                albumPlaceholder = createAlbumRequest.placeholderForCreatedAssetCollection
+            } completionHandler: { success, error in
+                if success, let placeholder = albumPlaceholder {
+                    let fetchResult = PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [placeholder.localIdentifier], options: nil)
+                    continuation.resume(returning: fetchResult.firstObject)
+                } else {
+                    continuation.resume(returning: nil)
                 }
             }
         }
